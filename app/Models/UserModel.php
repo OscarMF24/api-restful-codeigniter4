@@ -7,7 +7,7 @@ use Exception;
 
 class UserModel extends Model
 {
-    protected $table            = 'user';
+    protected $table            = 'users';
     protected $primaryKey       = 'id';
     protected $allowedFields    = ['name', 'last_name', 'phone', 'email', 'photo', 'password', 'type_user'];
 
