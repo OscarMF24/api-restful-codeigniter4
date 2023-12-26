@@ -1,67 +1,79 @@
 # CodeIgniter 4 Application Starter
 
-## What is CodeIgniter?
+# API RESTful con JWT en CodeIgniter 4
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+## Descripción
 
-This repository holds a composer-installable app starter.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+Esta API RESTful en CodeIgniter 4 se encarga de gestionar usuarios y autenticación mediante tokens JWT. Utiliza una base de datos MySQL para almacenar los datos de usuario.
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+## Requisitos
 
-The user guide corresponding to the latest version of the framework can be found
-[here](https://codeigniter4.github.io/userguide/).
+Asegúrate de tener los siguientes requisitos antes de ejecutar la API:
 
-## Installation & updates
+1. Tener una base de datos MySQL configurada.
+2. Ejecutar las migraciones y seeders para crear tablas y usuarios iniciales.
 
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
-there is a new release of the framework.
+   ```bash
+   php spark migrate
+   php spark db:seed UsersSeeder
+   ```
 
-When updating, check the release notes to see if there are any changes you might need to apply
-to your `app` folder. The affected files can be copied or merged from
-`vendor/codeigniter4/framework/app`.
+# Endpoints
 
-## Setup
+## Autenticación
 
-Copy `env` to `.env` and tailor for your app, specifically the baseURL
-and any database settings.
+### Login de Usuario
 
-## Important Change with index.php
+Método: POST
+Descripción: Iniciar sesión de usuario proporcionando credenciales.
+Ruta: /auth/login
+Registro de Usuario (Solo para administradores)
 
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
+Método: POST
+Descripción: Registrar un nuevo usuario proporcionando datos requeridos.
+Ruta: /auth/register
+Usuarios
+Listar Usuarios
 
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
+Método: GET
+Descripción: Obtener una lista de usuarios registrados.
+Ruta: /users
+Ver Detalles de Usuario (Solo para administradores)
 
-**Please** read the user guide for a better explanation of how CI4 works!
+Método: GET
+Descripción: Obtener detalles de un usuario por su ID.
+Ruta: /users/{id}
+Actualizar Usuario (Solo para administradores)
 
-## Repository Management
+Método: POST
+Descripción: Actualizar parcialmente los detalles de un usuario por su ID.
+Ruta: /users/{id}
+Eliminar Usuario (Solo para administradores)
 
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
+Método: DELETE
+Descripción: Eliminar parcialmente la cuenta de un usuario por su ID.
+Ruta: /users/{id}
+Restaurar Usuario Eliminado (Solo para administradores)
 
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
+Método: POST
+Descripción: Restaurar un usuario que ha sido eliminado previamente proporcionando su ID.
+Ruta: /users/restore/{id}
+Generar PDF de Lista de Usuarios (Solo para administradores)
 
-## Server Requirements
+Método: GET
+Descripción: Generar un archivo PDF que contiene una lista de usuarios.
+Ruta: /users/pdf
+Perfil de Usuario
+Obtener Perfil de Usuario
 
-PHP version 7.4 or higher is required, with the following extensions installed:
+Método: GET
+Descripción: Obtener detalles del usuario autenticado.
+Ruta: /user/profile
+Actualizar Perfil de Usuario
 
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
+Método: POST
+Descripción: Actualizar el perfil del usuario autenticado.
+Ruta: /user/profile/update
 
-> **Warning**
-> The end of life date for PHP 7.4 was November 28, 2022. If you are
-> still using PHP 7.4, you should upgrade immediately. The end of life date
-> for PHP 8.0 will be November 26, 2023.
-
-Additionally, make sure that the following extensions are enabled in your PHP:
-
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+Autor
+Oscar Muñoz Franco
