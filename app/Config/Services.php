@@ -39,4 +39,24 @@ class Services extends BaseService
     {
         return getenv('JWT_SECRET_KEY');
     }
+
+    /**
+     * Get the JWT algorithm from environment variables.
+     *
+     * @return string|null The JWT algorithm or null if it's not set.
+     */
+    public static function getAlgorithm(): ?string
+    {
+        return getenv('JWT_ALGORITHM');
+    }
+
+    /**
+     * Get the JWT token lifetime from environment variables.
+     *
+     * @return string|null The JWT token lifetime or null if it's not set.
+     */
+    public static function getTimeToLive(): ?string
+    {
+        return getenv('JWT_VALID_FOR');
+    }
 }
