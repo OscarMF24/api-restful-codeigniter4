@@ -34,6 +34,11 @@ class UsersSeeder extends Seeder
         }
     }
 
+    /**
+     * Generate an array of basic user data.
+     *
+     * @return array
+     */
     private function generateBasicUsers(): array
     {
         $faker = Factory::create();
