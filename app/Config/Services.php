@@ -29,4 +29,14 @@ class Services extends BaseService
      *     return new \CodeIgniter\Example();
      * }
      */
+
+    /**
+     * Get the JWT secret key from environment variables.
+     *
+     * @return string|null The JWT secret key or null if it's not set.
+     */
+    public static function getSecretKey(): ?string
+    {
+        return getenv('JWT_SECRET_KEY');
+    }
 }
