@@ -19,14 +19,18 @@ class UsersController extends BaseController
         $model = new UserModel();
         $users = $model->findAll();
 
-        $users = array_map(function ($user) {
+        $usersWithLastLogin = array_map(function ($user) use ($model) {
             unset($user['password'], $user['type_user']);
+
+            $lastLogin = $model->getLastLogin($user['id']);
+            $user['last_login'] = $lastLogin ? $lastLogin['login_time'] : null;
+
             return $user;
         }, $users);
 
         return $this->getResponse([
             'message' => 'Users retrieved successfully',
-            'users' => $users
+            'users' => $usersWithLastLogin
         ]);
     }
 
@@ -43,6 +47,10 @@ class UsersController extends BaseController
             $user = $model->findUserById($id);
 
             unset($user['password'], $user['type_user']);
+
+            $lastLogin = $model->getLastLogin($user['id']);
+            $user['last_login'] = $lastLogin ? $lastLogin['login_time'] : null;
+
 
             return $this->getResponse([
                 'message' => 'User retrieved successfully',

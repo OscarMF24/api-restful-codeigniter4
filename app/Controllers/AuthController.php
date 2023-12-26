@@ -3,8 +3,9 @@
 namespace App\Controllers;
 
 use App\Models\UserModel;
-use App\Controllers\BaseController;
+use App\Models\LoginLogsModel;
 use CodeIgniter\HTTP\Response;
+use App\Controllers\BaseController;
 use CodeIgniter\HTTP\ResponseInterface;
 
 class AuthController extends BaseController
@@ -77,6 +78,8 @@ class AuthController extends BaseController
             $user = $model->findUserByPhone($phone);
             unset($user['password']);
 
+            $this->createLoginLog($user['phone']);
+
             helper('jwt');
 
             return $this->getResponse([
@@ -89,6 +92,28 @@ class AuthController extends BaseController
             return $this->getResponse([
                 'error' => $exception->getMessage()
             ], $responseCode);
+        }
+    }
+
+    /**
+     * Create a login log entry for the user.
+     *
+     * @param string $phone The user's phone number.
+     * @return void
+     */
+    private function createLoginLog(string $phone): void
+    {
+        try {
+            $model = new UserModel();
+            $user = $model->findUserByPhone($phone);
+
+            $loginLogModel = new LoginLogsModel();
+            $loginLogModel->insert([
+                'user_id' => $user['id'],
+                'login_time' => date('Y-m-d H:i:s'),
+            ]);
+        } catch (\Exception $exception) {
+            //
         }
     }
 }

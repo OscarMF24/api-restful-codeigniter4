@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
 use Exception;
+use CodeIgniter\Model;
+use App\Models\LoginLogsModel;
 
 class UserModel extends Model
 {
@@ -106,5 +107,21 @@ class UserModel extends Model
     public function restoreDeleted(int $id): bool
     {
         return $this->asArray()->withDeleted()->update($id, [$this->deletedField => null]);
+    }
+
+    /**
+     * Get the last login record for a specific user.
+     *
+     * @param int $userId The ID of the user.
+     * @return array|null The last login record as an array, or null if no record is found.
+     */
+    public function getLastLogin(int $userId): ?array
+    {
+        $loginLogsModel = new LoginLogsModel();
+
+        return $loginLogsModel->select('login_time')
+            ->where('user_id', $userId)
+            ->orderBy('login_time', 'DESC')
+            ->first();
     }
 }
