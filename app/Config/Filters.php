@@ -74,8 +74,6 @@ class Filters extends BaseConfig
             'before' => [
                 'users/*',
                 'users',
-                'user/*',
-                'user'
             ]
         ]
     ];

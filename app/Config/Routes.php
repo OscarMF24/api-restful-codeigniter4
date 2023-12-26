@@ -33,4 +33,23 @@ $routes->group('users', ['namespace' => 'App\Controllers', 'filter' => 'auth'], 
      * Description: This route is used to retrieve a list of registered users.
      */
     $routes->get('/', 'UsersController::index');
+
+    /**
+     * Route to retrieve a user by ID.
+     *
+     * Method: GET
+     * Description: This route is used to retrieve details of a user by their ID.
+     *              It accepts a numeric user ID as a parameter.
+     */
+    $routes->get('(:num)', 'UsersController::show/$1');
+
+    /**
+     * Route to partially update a user.
+     *
+     * Method: PATCH
+     * Description: This route is used to partially update the details of a user
+     * by their numeric ID. It accepts a JSON or form data payload with the fields
+     * to be updated.
+     */
+    $routes->patch('(:num)', 'UsersController::update/$1', ['as' => 'updateUser']);
 });

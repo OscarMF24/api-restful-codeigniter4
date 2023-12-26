@@ -78,4 +78,22 @@ class UserModel extends Model
 
         return $user;
     }
+
+    /**
+     * Find a user by their ID.
+     *
+     * @param int $id The ID of the user to find.
+     * @return array The data of the found user.
+     * @throws \Exception If no user is found for the specified ID.
+     */
+    public function findUserById(int $id): array
+    {
+        $user = $this->asArray()->where(['id' => $id])->first();
+
+        if (!$user) {
+            throw new \Exception('Could not find user for specified ID');
+        }
+
+        return $user;
+    }
 }
