@@ -2,6 +2,7 @@
 
 use Config\Services;
 use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use App\Models\UserModel;
 
 /**
@@ -29,7 +30,9 @@ function getJWTFromRequest($authenticationHeader): string
  */
 function validateJWTFromRequest(string $encodedToken): void
 {
-    $decodedToken = JWT::decode($encodedToken, Services::getSecretKey(), Services::getAlgorithm());
+    $key = Services::getSecretKey();
+    $algorithm = Services::getAlgorithm();
+    $decodedToken = JWT::decode($encodedToken, new Key($key, $algorithm));
     $userModel = new UserModel();
     $userModel->findUserByPhone($decodedToken->phone);
 }
@@ -51,7 +54,10 @@ function getSignedJWTForUser(string $phone): string
         'expiration' => $tokenExpiration
     ];
 
-    $jwt = JWT::encode($payload, Services::getSecretKey(), Services::getAlgorithm());
+    $key = Services::getSecretKey();
+    $algorithm = Services::getAlgorithm();
+
+    $jwt = JWT::encode($payload, $key, $algorithm);
 
     return $jwt;
 }
