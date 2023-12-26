@@ -73,22 +73,32 @@ class UsersController extends BaseController
     {
         try {
             $model = new UserModel();
-            $model->findUserById($id);
+            $user = $model->findUserById($id);
 
             $input = $this->getRequestInput($this->request);
+            $photoFile = $this->request->getFile('photo');
 
+            if ($photoFile->isValid() && !$photoFile->hasMoved()) {
+                if (!empty($user['photo'])) {
+                    unlink(ROOTPATH . 'public/' . $user['photo']);
+                }
+
+                $newName = $photoFile->getRandomName();
+                $photoFile->move(ROOTPATH . 'public/uploads', $newName);
+                $photoPath = 'uploads/' . $newName;
+                $input['photo'] = $photoPath;
+            } else {
+                unset($input['photo']);
+            }
 
             $model->update($id, $input);
             $user = $model->findUserById($id);
-
-            unset($user['password'], $user['type_user']);
 
             return $this->getResponse([
                 'message' => 'User updated successfully',
                 'user' => $user
             ]);
         } catch (\Exception $exception) {
-
             return $this->getResponse([
                 'message' => $exception->getMessage()
             ], ResponseInterface::HTTP_NOT_FOUND);
@@ -151,5 +161,42 @@ class UsersController extends BaseController
                 'message' => $exception->getMessage(),
             ], ResponseInterface::HTTP_NOT_FOUND);
         }
+    }
+
+    /**
+     * Genera un archivo PDF que contiene un listado de usuarios.
+     *
+     * @return \CodeIgniter\HTTP\Response
+     */
+    public function generateUserListPdf(): Response
+    {
+        $mpdf = new \Mpdf\Mpdf();
+
+        $userModel = new UserModel();
+        $users = $userModel->findAll();
+
+        $html = '<h1>Listado de Usuarios</h1>';
+        foreach ($users as $user) {
+            $html .= '<img src="' . site_url('public/' . $user['photo']) . '" width="100" height="100"><br>';
+            $html .= 'Nombre: ' . $user['name'] . ' ' . $user['last_name'] . '<br>';
+            $html .= 'Celular: ' . $user['phone'] . '<br>';
+            $html .= 'Correo electrónico: ' . $user['email'] . '<br>';
+            $html .= 'Tipo de Usuario: ' . $user['type_user'] . '<br><br>';
+        }
+
+        $mpdf->WriteHTML($html);
+
+        $pdfFileName = 'user_list.pdf';
+        $pdfFilePath = WRITEPATH . 'uploads/' . $pdfFileName;
+        $mpdf->Output($pdfFilePath, 'F');
+
+        $pdfUrl = base_url('uploads/' . $pdfFileName);
+
+        $response = [
+            'message' => 'PDF generate successfully',
+            'pdf_url' => $pdfUrl,
+        ];
+
+        return $this->response->setJSON($response);
     }
 }

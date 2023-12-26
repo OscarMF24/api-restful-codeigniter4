@@ -22,14 +22,30 @@ class AuthController extends BaseController
             'last_name' => 'required',
             'phone' => 'required|min_length[10]|max_length[12]|is_unique[users.phone]',
             'email' => 'required|valid_email|is_unique[users.email]',
+            'photo' => 'uploaded[photo]|max_size[photo,2048]|ext_in[photo,png,jpg,jpeg]',
             'password' => 'required|min_length[8]|max_length[255]',
             'type_user' => 'in_list[admin,basic]'
         ];
 
         $input = $this->getRequestInput($this->request);
 
+        if (!$this->isAdmin()) {
+            return $this->getResponse(['message' => 'Access denied. You must be an admin to create users.'], ResponseInterface::HTTP_FORBIDDEN);
+        }
+
         if (!$this->validateRequest($input, $rules)) {
             return $this->getResponse($this->validator->getErrors(), ResponseInterface::HTTP_BAD_REQUEST);
+        }
+
+        $photoFile = $this->request->getFile('photo');
+
+        if ($photoFile->isValid() && !$photoFile->hasMoved()) {
+            $newName = $photoFile->getRandomName();
+            $photoFile->move(ROOTPATH . 'public/uploads', $newName);
+            $photoPath = 'uploads/' . $newName;
+            $input['photo'] = $photoPath;
+        } else {
+            return $this->getResponse(['message' => 'Invalid photo upload'], ResponseInterface::HTTP_BAD_REQUEST);
         }
 
         $userModel = new UserModel();
@@ -37,6 +53,7 @@ class AuthController extends BaseController
 
         return $this->getJWTForUser($input['phone'], ResponseInterface::HTTP_CREATED);
     }
+
     /**
      * Handle user login.
      *
@@ -85,7 +102,7 @@ class AuthController extends BaseController
             return $this->getResponse([
                 'message' => 'User authenticated successfully',
                 'user' => $user,
-                'access_token' => getSignedJWTForUser($phone)
+                'access_token' => getSignedJWTForUser($phone, $user['type_user'])
             ]);
         } catch (\Exception $exception) {
 
@@ -114,6 +131,40 @@ class AuthController extends BaseController
             ]);
         } catch (\Exception $exception) {
             //
+        }
+    }
+
+    /**
+     * Check if the authenticated user is an admin.
+     *
+     * @return bool
+     */
+    private function isAdmin(): bool
+    {
+        $decodedToken = $this->getDecodedTokenFromRequest();
+        return isset($decodedToken->type_user) && $decodedToken->type_user === 'admin';
+    }
+
+    /**
+     * Get the decoded JWT token from the request.
+     *
+     * @return object|null
+     */
+    private function getDecodedTokenFromRequest(): ?object
+    {
+        $authenticationHeader = $this->request->getServer('HTTP_AUTHORIZATION');
+
+        if (is_null($authenticationHeader)) {
+            return null;
+        }
+
+        $encodedToken = explode(' ', $authenticationHeader)[1];
+
+        try {
+            helper('jwt');
+            return validateJWTFromRequest($encodedToken);
+        } catch (\Exception $exception) {
+            return null;
         }
     }
 }

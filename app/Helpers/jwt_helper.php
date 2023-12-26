@@ -25,16 +25,22 @@ function getJWTFromRequest($authenticationHeader): string
  * Validates a JWT token from an encoded string.
  *
  * @param string $encodedToken The encoded JWT token.
- * @return void
+ * @return object The decoded JWT token as an object.
  * @throws Exception If the token is invalid or the user cannot be found.
  */
-function validateJWTFromRequest(string $encodedToken): void
+function validateJWTFromRequest(string $encodedToken): object
 {
     $key = Services::getSecretKey();
     $algorithm = Services::getAlgorithm();
     $decodedToken = JWT::decode($encodedToken, new Key($key, $algorithm));
     $userModel = new UserModel();
-    $userModel->findUserByPhone($decodedToken->phone);
+    $user = $userModel->findUserByPhone($decodedToken->phone);
+
+    if (!$user) {
+        throw new Exception('User not found');
+    }
+
+    return $decodedToken;
 }
 
 /**
@@ -43,13 +49,14 @@ function validateJWTFromRequest(string $encodedToken): void
  * @param string $phone The phone number of the user.
  * @return string The signed JWT token.
  */
-function getSignedJWTForUser(string $phone): string
+function getSignedJWTForUser(string $phone, string $typeUser): string
 {
     $issuedAtTime = time();
     $tokenTimeToLive = Services::getTimeToLive();
     $tokenExpiration = $issuedAtTime + $tokenTimeToLive;
     $payload = [
         'phone' => $phone,
+        'type_user' => $typeUser,
         'issued' => $issuedAtTime,
         'expiration' => $tokenExpiration
     ];

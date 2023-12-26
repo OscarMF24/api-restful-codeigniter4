@@ -12,7 +12,8 @@
     "require": {
         "php": "^7.4 || ^8.0",
         "codeigniter4/framework": "^4.0",
-        "firebase/php-jwt": "6.5.0"
+        "firebase/php-jwt": "6.5.0",
+        "mpdf/mpdf": "^8.2"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9",

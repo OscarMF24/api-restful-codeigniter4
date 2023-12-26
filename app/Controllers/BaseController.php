@@ -78,10 +78,27 @@ abstract class BaseController extends Controller
      */
     public function getRequestInput(IncomingRequest $request): array
     {
-        $input = $request->getRawInput();
+        $method = $request->getMethod();
+        $input = [];
 
-        if (empty($input)) {
-            $input = json_decode($request->getBody(), true);
+        if ($method === 'PATCH') {
+            $rawInput = $request->getRawInput();
+            if (!empty($rawInput)) {
+                $input = is_array($rawInput) ? $rawInput : json_decode($rawInput, true);
+            }
+        } else {
+            $input = $request->getPost();
+
+            if (empty($input)) {
+                $input = $request->getFiles();
+            }
+
+            if (empty($input)) {
+                $rawInput = $request->getRawInput();
+                if (!empty($rawInput)) {
+                    $input = is_array($rawInput) ? $rawInput : json_decode($rawInput, true);
+                }
+            }
         }
 
         return $input;
