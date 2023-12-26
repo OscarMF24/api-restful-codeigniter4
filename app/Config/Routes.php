@@ -32,7 +32,7 @@ $routes->group('users', ['namespace' => 'App\Controllers', 'filter' => 'auth'], 
      * Method: GET
      * Description: This route is used to retrieve a list of registered users.
      */
-    $routes->get('/', 'UsersController::index', ['as' => 'indexUser']);
+    $routes->get('/', 'UsersController::index', ['as' => 'indexUsers']);
 
     /**
      * Route to retrieve a user by ID only admin's.
@@ -41,7 +41,7 @@ $routes->group('users', ['namespace' => 'App\Controllers', 'filter' => 'auth'], 
      * Description: This route is used to retrieve details of a user by their ID.
      *              It accepts a numeric user ID as a parameter.
      */
-    $routes->get('(:num)', 'UsersController::show/$1', ['as' => 'showUser', 'filter' => 'admin']);
+    $routes->get('(:num)', 'UsersController::show/$1', ['as' => 'showUsers', 'filter' => 'admin']);
 
     /**
      * Route to partially update a user only admin's.
@@ -53,7 +53,7 @@ $routes->group('users', ['namespace' => 'App\Controllers', 'filter' => 'auth'], 
      * IMPORTAN: Changed method to post for method compatibility in Codeigniter4.
      * If patch works but you cannot enter the data through form-data only because of x-www-form-urlencoded
      */
-    $routes->post('(:num)', 'UsersController::update/$1', ['as' => 'updateUser', 'filter' => 'admin']);
+    $routes->post('(:num)', 'UsersController::update/$1', ['as' => 'updateUsers', 'filter' => 'admin']);
 
     /**
      * Route to partially delete a user only admin's.
@@ -64,7 +64,7 @@ $routes->group('users', ['namespace' => 'App\Controllers', 'filter' => 'auth'], 
      * their account while keeping their data for potential recovery.
      * It accepts the user's ID as a parameter.
      */
-    $routes->delete('(:num)', 'UsersController::destroy/$1', ['as' => 'destroyUser', 'filter' => 'admin']);
+    $routes->delete('(:num)', 'UsersController::destroy/$1', ['as' => 'destroyUsers', 'filter' => 'admin']);
 
     /**
      * Route to restore a soft-deleted user only admin´'s.
@@ -73,7 +73,7 @@ $routes->group('users', ['namespace' => 'App\Controllers', 'filter' => 'auth'], 
      * Description: This route is used to restore a user who has been soft-deleted, providing their numeric ID.
      * Restoration allows re-enabling the user's account. It accepts the ID of the deleted user as a parameter.
      */
-    $routes->patch('restore/(:num)', 'UsersController::restore/$1', ['as' => 'restoreUser', 'filter' => 'admin']);
+    $routes->post('restore/(:num)', 'UsersController::restore/$1', ['as' => 'restoreUsers', 'filter' => 'admin']);
 
     /**
      * Route for generating a PDF file containing a list of users.
@@ -84,5 +84,23 @@ $routes->group('users', ['namespace' => 'App\Controllers', 'filter' => 'auth'], 
      *
      * @see \App\Controllers\PdfController::generateUserListPdf()
      */
-    //$routes->get('pdf', 'UsersController::generateUserListPdf');
+    $routes->get('pdf', 'UsersController::generateUserListPdf', ['as' => 'generatePdf', 'filter' => 'admin']);
+});
+
+$routes->group('user', ['namespace' => 'App\Controllers', 'filter' => 'auth'], function ($routes) {
+    /**
+     * Route for Retrieve the authenticated user..
+     *
+     * Method: GET
+     * Description: This route is used to retrieve the authenticated user data.
+     */
+    $routes->get('profile', 'UsersController::profile', ['as' => 'profileUser']);
+
+    /**
+     * Route for Update authenticated user data.
+     *
+     * Method: POST
+     * Description: This route is used to Update authenticated user data.
+     */
+    $routes->post('profile/update', 'UsersController::updateProfile', ['as' => 'updateProfileUsers']);
 });
