@@ -2,12 +2,14 @@
 
 namespace App\Controllers;
 
+use Config\Services;
 use CodeIgniter\Controller;
 use CodeIgniter\HTTP\CLIRequest;
 use CodeIgniter\HTTP\IncomingRequest;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use CodeIgniter\Validation\Exceptions\ValidationException;
 
 /**
  * Class BaseController
@@ -54,5 +56,65 @@ abstract class BaseController extends Controller
         // Preload any models, libraries, etc, here.
 
         // E.g.: $this->session = \Config\Services::session();
+    }
+
+    /**
+     * Get a JSON response with the given response body and status code.
+     *
+     * @param array $responseBody The response body.
+     * @param int $code The HTTP status code (default is HTTP_OK).
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function getResponse(array $responseBody, int $code = ResponseInterface::HTTP_OK): ResponseInterface
+    {
+        return $this->response->setStatusCode($code)->setJSON($responseBody);
+    }
+
+    /**
+     * Get and return input data from an IncomingRequest.
+     *
+     * @param \CodeIgniter\HTTP\IncomingRequest $request The incoming request.
+     * @return array The input data.
+     */
+    public function getRequestInput(IncomingRequest $request): array
+    {
+        $input = $request->getPost();
+
+        if (empty($input)) {
+            $input = json_decode($request->getBody(), true);
+        }
+
+        return $input;
+    }
+
+    /**
+     * Validate input data against specified rules and messages.
+     *
+     * @param array $input The input data to validate.
+     * @param array|string $rules The validation rules.
+     * @param array $messages Custom error messages (optional).
+     * @return bool True if validation passes, false otherwise.
+     * @throws \CodeIgniter\Validation\Exceptions\ValidationException
+     */
+    public function validateRequest(array $input, array $rules, array $messages = []): bool
+    {
+        $this->validator = Services::validation()->setRules($rules);
+
+        if (is_string($rules)) {
+            $validation = config('Validation');
+
+            if (!isset($validation->$rules)) {
+                throw ValidationException::forRuleNotFound($rules);
+            }
+
+            if (!$messages) {
+                $errorName = $rules . '_errors';
+                $messages = $validation->$errorName ?? [];
+            }
+
+            $rules = $validation->$rules;
+        }
+
+        return $this->validator->setRules($rules, $messages)->run($input);
     }
 }
