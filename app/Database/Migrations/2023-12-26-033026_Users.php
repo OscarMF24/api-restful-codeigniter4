@@ -53,7 +53,8 @@ class Users extends Migration
                 'default' => 'basic',
             ],
             'created_at datetime default current_timestamp',
-            'updated_at datetime default current_timestamp'
+            'updated_at datetime default current_timestamp',
+            'deleted_at datetime'
         ]);
 
         $this->forge->addPrimaryKey('id');

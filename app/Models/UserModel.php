@@ -12,7 +12,7 @@ class UserModel extends Model
     protected $allowedFields    = ['name', 'last_name', 'phone', 'email', 'photo', 'password', 'type_user'];
 
     protected $returnType       = 'array';
-    protected $useSoftDeletes   = false;
+    protected $useSoftDeletes   = true;
 
     protected $useTimestamps = true;
     protected $dateFormat    = 'datetime';
@@ -95,5 +95,16 @@ class UserModel extends Model
         }
 
         return $user;
+    }
+
+    /**
+     * Restore a softly deleted record in the database.
+     *
+     * @param int $id The ID of the record to restore.
+     * @return bool True if the restoration was successful, false if it failed.
+     */
+    public function restoreDeleted(int $id): bool
+    {
+        return $this->asArray()->withDeleted()->update($id, [$this->deletedField => null]);
     }
 }

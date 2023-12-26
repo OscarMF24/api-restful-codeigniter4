@@ -39,7 +39,6 @@ class UsersController extends BaseController
     public function show(int $id): ResponseInterface
     {
         try {
-
             $model = new UserModel();
             $user = $model->findUserById($id);
 
@@ -65,7 +64,6 @@ class UsersController extends BaseController
     public function update(int $id): ResponseInterface
     {
         try {
-
             $model = new UserModel();
             $model->findUserById($id);
 
@@ -85,6 +83,64 @@ class UsersController extends BaseController
 
             return $this->getResponse([
                 'message' => $exception->getMessage()
+            ], ResponseInterface::HTTP_NOT_FOUND);
+        }
+    }
+
+    /**
+     * Delete a user by ID.
+     *
+     * @param int $id The ID of the user to delete.
+     * @return ResponseInterface The HTTP response.
+     */
+    public function destroy(int $id): ResponseInterface
+    {
+        try {
+            $model = new UserModel();
+            $user = $model->withDeleted()->findUserById($id);
+
+            if (empty($user)) {
+                throw new \Exception('User not found');
+            }
+
+            if (!$model->delete($user)) {
+                throw new \Exception('Failed to delete user');
+            }
+
+            return $this->getResponse([
+                'message' => 'User deleted successfully',
+            ]);
+        } catch (\Exception $exception) {
+            return $this->getResponse([
+                'message' => $exception->getMessage()
+            ], ResponseInterface::HTTP_NOT_FOUND);
+        }
+    }
+
+    /**
+     * Restore a soft-deleted user by ID.
+     *
+     * @param int $id The ID of the user to restore.
+     * @return ResponseInterface The HTTP response.
+     */
+    public function restore(int $id): ResponseInterface
+    {
+        try {
+            $model = new UserModel();
+            $restored = $model->restoreDeleted($id);
+
+            if ($restored) {
+                return $this->getResponse([
+                    'message' => 'User restored successfully',
+                ]);
+            } else {
+                return $this->getResponse([
+                    'message' => 'User restoration failed',
+                ], ResponseInterface::HTTP_BAD_REQUEST);
+            }
+        } catch (\Exception $exception) {
+            return $this->getResponse([
+                'message' => $exception->getMessage(),
             ], ResponseInterface::HTTP_NOT_FOUND);
         }
     }
