@@ -77,3 +77,9 @@ Ruta: /user/profile/update
 
 Autor
 Oscar Muñoz Franco
+
+## Variables de entorno que debes agregar
+
+JWT_SECRET_KEY = your_key_secret_string
+JWT_ALGORITHM = HS256
+JWT_VALID_FOR = 3600
